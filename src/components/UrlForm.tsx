@@ -1,5 +1,8 @@
 
 import { useState, FormEvent } from 'react';
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { SearchIcon } from "lucide-react";
 
 interface UrlFormProps {
   onSubmit: (url: string) => void;
@@ -17,26 +20,29 @@ const UrlForm = ({ onSubmit, isLoading }: UrlFormProps) => {
   };
 
   return (
-    <form className="url-form" onSubmit={handleSubmit}>
-      <div className="form-control">
-        <input
-          type="url"
-          className="url-input"
-          placeholder="Enter article URL (e.g., https://example.com/article)"
-          value={url}
-          onChange={(e) => setUrl(e.target.value)}
-          required
-          pattern="https?://.+"
-          title="Please enter a valid URL starting with http:// or https://"
-          disabled={isLoading}
-        />
-        <button
+    <form className="w-full mb-8" onSubmit={handleSubmit}>
+      <div className="flex flex-col sm:flex-row gap-2">
+        <div className="flex-grow">
+          <Input
+            type="url"
+            placeholder="Enter article URL (e.g., https://example.com/article)"
+            value={url}
+            onChange={(e) => setUrl(e.target.value)}
+            required
+            pattern="https?://.+"
+            className="w-full"
+            title="Please enter a valid URL starting with http:// or https://"
+            disabled={isLoading}
+          />
+        </div>
+        <Button
           type="submit"
-          className="submit-button"
+          className="flex items-center"
           disabled={isLoading || !url.trim()}
         >
+          <SearchIcon className="h-4 w-4 mr-2" />
           Summarize
-        </button>
+        </Button>
       </div>
     </form>
   );

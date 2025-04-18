@@ -1,4 +1,3 @@
-
 import os
 import logging
 import json
@@ -23,7 +22,8 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 app = Flask(__name__)
-CORS(app)
+# Configure CORS to allow requests from any origin
+CORS(app, resources={r"/api/*": {"origins": "*"}})
 
 # Cache for storing summaries
 summary_cache = {}
@@ -177,6 +177,14 @@ def summarize_text(text):
 
 @app.route('/api/summarize', methods=['POST'])
 def summarize_article():
+    # Add CORS headers to allow requests from any origin
+    if request.method == 'OPTIONS':
+        response = make_response()
+        response.headers.add('Access-Control-Allow-Origin', '*')
+        response.headers.add('Access-Control-Allow-Headers', 'Content-Type')
+        response.headers.add('Access-Control-Allow-Methods', 'POST')
+        return response
+        
     data = request.json
     url = data.get('url', '')
     
@@ -191,12 +199,24 @@ def summarize_article():
         return jsonify(summary_cache[cache_key])
     
     # Fetch article
-    html_content = fetch_article(url)
-    if not html_content:
-        return jsonify({'error': 'Failed to fetch article content'}), 400
+    try:
+        html_content = fetch_article(url)
+        if not html_content:
+            return jsonify({'error': 'Failed to fetch article content'}), 400
+    except Exception as e:
+        logger.error(f"Error fetching article: {str(e)}")
+        return jsonify({'error': f'Error fetching article: {str(e)}'}), 500
     
     # Parse article
-    article_data = parse_article(html_content)
+    try:
+        article_data = parse_article(html_content)
+    except Exception as e:
+        logger.error(f"Error parsing article: {str(e)}")
+        return jsonify({'error': f'Error parsing article: {str(e)}'}), 500
+    
+    # Check if we have any sections to summarize
+    if not article_data['sections']:
+        return jsonify({'error': 'No content found to summarize in the article'}), 400
     
     # Summarize each section
     summaries = []
@@ -208,11 +228,19 @@ def summarize_article():
         if len(content.split()) < 50:
             continue
             
-        summary = summarize_text(content)
-        summaries.append({
-            'heading': heading,
-            'summary': summary
-        })
+        try:
+            summary = summarize_text(content)
+            summaries.append({
+                'heading': heading,
+                'summary': summary
+            })
+        except Exception as e:
+            logger.error(f"Error summarizing section '{heading}': {str(e)}")
+            # Continue with other sections if one fails
+    
+    # Check if we have any summaries
+    if not summaries:
+        return jsonify({'error': 'Could not generate summaries from the article content'}), 400
     
     result = {
         'title': article_data['title'],
@@ -250,4 +278,6 @@ def health_check():
 
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
-    app.run(host='0.0.0.0', port=port, debug=True)
+    # Set debug=False in production
+    debug_mode = os.environ.get('DEBUG', 'False').lower() == 'true'
+    app.run(host='0.0.0.0', port=port, debug=debug_mode)

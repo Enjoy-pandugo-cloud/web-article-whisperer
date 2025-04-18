@@ -1,73 +1,88 @@
-# Welcome to your Lovable project
 
-## Project info
+# Web Article Whisperer
 
-**URL**: https://lovable.dev/projects/77825c99-4c4e-4fc6-9823-d2803c70e898
+A lightweight, web-based Python app that lets users paste a URL, and get a clean, section-by-section summary in their browser. Powered by BeautifulSoup for scraping and Hugging Face's Transformers for open-source summarization - running entirely locally, no external API keys required.
 
-## How can I edit this code?
+## Features
 
-There are several ways of editing your application.
+- **URL-based Article Summarization**: Simply paste any article URL and get a summary
+- **Section-by-Section Analysis**: Summaries are organized by article headings
+- **Local Processing**: All summarization happens on your device - no data sent to external APIs
+- **Markdown Export**: Download summaries as Markdown files
+- **GPU Acceleration**: Automatically uses GPU if available for faster processing
 
-**Use Lovable**
+## Technical Stack
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/77825c99-4c4e-4fc6-9823-d2803c70e898) and start prompting.
+### Backend
+- Flask for the API server
+- BeautifulSoup4 for HTML parsing 
+- Hugging Face Transformers for summarization
+- Bleach for HTML sanitization
 
-Changes made via Lovable will be committed automatically to this repo.
+### Frontend
+- React with TypeScript
+- Modern responsive design
 
-**Use your preferred IDE**
+## Setup & Installation
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+### Backend
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+1. Navigate to the `api` directory:
+   ```
+   cd api
+   ```
 
-Follow these steps:
+2. Install dependencies:
+   ```
+   pip install -r requirements.txt
+   ```
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+3. Start the Flask server:
+   ```
+   python app.py
+   ```
+   The API will be available at http://localhost:5000
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+### Frontend
 
-# Step 3: Install the necessary dependencies.
-npm i
+1. In the project root, install dependencies:
+   ```
+   npm install
+   ```
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
+2. Start the development server:
+   ```
+   npm run dev
+   ```
+   The app will be available at http://localhost:8080
+
+## Optional Configuration
+
+You can customize the application by creating a `.env` file in the `api` directory with the following variables:
+
+```
+SUMMARIZER_MODEL=facebook/bart-large-cnn  # Change to any Hugging Face summarization model
+PORT=5000  # Change the API port if needed
 ```
 
-**Edit a file directly in GitHub**
+## Usage
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+1. Open the application in your browser
+2. Paste an article URL into the input field
+3. Click "Summarize" and wait for the processing to complete
+4. Review the section-by-section summaries
+5. Optionally download the summaries as a Markdown file
 
-**Use GitHub Codespaces**
+## Error Handling
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+The application includes robust error handling for:
+- Invalid URLs
+- Failed article fetching
+- HTML parsing issues
+- Summarization errors
 
-## What technologies are used for this project?
+## Limitations
 
-This project is built with:
-
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
-
-## How can I deploy this project?
-
-Simply open [Lovable](https://lovable.dev/projects/77825c99-4c4e-4fc6-9823-d2803c70e898) and click on Share -> Publish.
-
-## Can I connect a custom domain to my Lovable project?
-
-Yes, you can!
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+- Some complex page layouts may not be parsed correctly
+- Very long articles may take significant time to process
+- Summarization quality depends on the underlying model
